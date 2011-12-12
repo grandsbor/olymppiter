@@ -24,7 +24,7 @@ function get_temporary_marks($task_id, $judge_id) {
         $marks[] = array(
             'id'    => $r[0],
             'code'  => $r[1],
-            'marks' => $t
+            'fields' => $t
         );
     }
     return $marks;
