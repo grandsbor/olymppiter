@@ -32,20 +32,20 @@ CREATE TABLE IF NOT EXISTS `solutions` (
 CREATE TABLE IF NOT EXISTS `solutions_tmp` (
     `solution_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `task_id`     MEDIUMINT UNSIGNED NOT NULL,
+    `judge_id`    SMALLINT UNSIGNED NOT NULL,
     `code`        VARCHAR(9) NOT NULL,
     INDEX(task_id),
-    INDEX(code)
+    INDEX(code),
+    INDEX(judge_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `marks_tmp` (
     `mark_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `subtask_id`  MEDIUMINT UNSIGNED NOT NULL,
     `solution_id` INT UNSIGNED NOT NULL,
-    `judge_id`    SMALLINT UNSIGNED NOT NULL,
     `mark_value`  TINYINT UNSIGNED NOT NULL,
     INDEX(subtask_id),
-    INDEX(solution_id),
-    INDEX(judge_id)
+    INDEX(solution_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `final_marks` (

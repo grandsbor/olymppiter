@@ -6,6 +6,8 @@ if (!headers_sent()) {
 
 $config = parse_ini_file(dirname(__FILE__) . '/../config.ini', true);
 
+require_once('lib_main.php');
+
 //init Smarty
 require_once('Smarty.class.php');
 
