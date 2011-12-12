@@ -7,7 +7,7 @@ function get_subtasks($task_id) {
         $subtasks[] = array(
             'id' => $r['subtask_id'],
             'max' => $r['max_mark'],
-            'comment' => $r['comment']
+            'name' => $r['comment']
         );
     }
     return $subtasks;
@@ -28,5 +28,32 @@ function get_temporary_marks($task_id, $judge_id) {
         );
     }
     return $marks;
+}
+function save_temporary_marks($task_id, $judge_id, $marks) {
+    // $marks is an array type (code, array of arrays type (subtask_id => value))
+    mysql_query("START TRANSACTION");
+    $ret_codes = array();
+    foreach($marks as $solution) {
+        if ($solution['id']) $solution['id'] = (int)$solution['id'];
+        if (!$solution['id']) {
+            //this is a new solution, let's add it
+            if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '".mysql_real_escape_string(strtoupper($solution['code']))."')")) return false;
+            $solution['id'] = mysql_insert_id();
+        }
+        $ret_codes[] = $solution['id'];
+
+        foreach($solution['marks'] as $subtask_id => $value) {
+            $subtask_id = (int)$subtask_id;
+            $value = (int)$value;
+            $res = mysql_query("SELECT mark_id FROM marks_tmp WHERE solution_id=".$solution['id']." AND subtask_id=$subtask_id LIMIT 1");
+            if (mysql_num_rows($res)) {
+                $r = mysql_fetch_row($res);
+                if (!mysql_query("UPDATE marks_tmp SET mark_value=$value WHERE mark_id=$r[0] LIMIT 1")) return false;
+            } else {
+                if (!mysql_query("INSERT INTO marks_tmp VALUES (NULL, $subtask_id, ".$solution['id'].", $value)")) return false;
+            }
+        }
+    }
+    return $ret_codes;
 }
 ?>
