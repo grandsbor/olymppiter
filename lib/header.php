@@ -5,4 +5,13 @@ if (!headers_sent()) {
 }
 
 $config = parse_ini_file(dirname(__FILE__) . '/../config.ini', true);
+
+//init Smarty
+require_once('Smarty.class.php');
+
+$smarty = new Smarty();
+$smarty->template_dir = $config['smarty']['template_dir'];
+$smarty->compile_dir  = $config['smarty']['compile_dir'];
+$smarty->config_dir   = $config['smarty']['config_dir'];
+$smarty->cache_dir    = $config['smarty']['cache_dir'];
 ?>
