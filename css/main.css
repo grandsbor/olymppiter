@@ -1,0 +1,7 @@
+* {margin: 0; padding: 0;}
+body {background-color: #ffffff; font-family: Arial, sans-serif; font-size: 13px; color: #444444;}
+
+#container {}
+#header {min-height:40px; background-color: #4e89be;}
+#main {padding: 0 15px;}
+h1 {font-size:26px; margin:7px 0 15px;}
