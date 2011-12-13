@@ -34,8 +34,9 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
     mysql_query("START TRANSACTION");
     $ret_codes = array();
     foreach($marks as $solution) {
-        if ($solution['id']) $solution['id'] = (int)$solution['id'];
-        if (!$solution['id']) {
+        if ($solution['id'])
+            $solution['id'] = (int)$solution['id'];
+        else {
             //this is a new solution, let's add it
             if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '".mysql_real_escape_string(strtoupper($solution['code']))."')")) return false;
             $solution['id'] = mysql_insert_id();
@@ -54,6 +55,28 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
             }
         }
     }
+    mysql_query("COMMIT");
     return $ret_codes;
+}
+function get_aggregate_marks($task_id) {
+    $out = array();
+    $res = mysql_query("SELECT solution_id, judge_id, code FROM solutions_tmp WHERE task_id = $task_id ORDER BY code");
+    while ($r = mysql_fetch_assoc($res)) {
+        $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
+        $t = array();
+        while ($r1 = mysql_fetch_assoc($res1)) {
+            $t[] = array(
+                'id' => $r1['mark_id'],
+                'subtask_id' => $r1['subtask_id'],
+                'value' => $r1['mark_value']
+            );
+        }
+        $out[$r['code']][] = array(
+            'id' => $r['solution_id'],
+            'judge_id' => $r['judge_id'],
+            'marks' => $t
+        );
+    }
+    return $out;
 }
 ?>
