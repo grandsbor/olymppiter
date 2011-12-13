@@ -2,8 +2,8 @@
 {block name="content"}
 <script>
 var cols = {$cols};
-var rows = [];
-var data = { 'cols':cols,'node':'#main-table' };
+var rows = {$rows};
+var data = { 'cols':cols,'rows':rows,'node':'#main-table' };
 $(document).ready(function(){
    var table = new Table(data);
 })

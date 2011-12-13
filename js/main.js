@@ -49,16 +49,14 @@ Table.prototype.createCols = function() {
    this.tableNode.append('<thead><tr id="table-header"></tr></thead>');
    var $header = $('#table-header');
    for(i=0;i<this.data.cols.length;++i) {
-      var col = this.data.cols[i];
-      col.element = $("<th id='col-" + this.data.cols[i].id + "' data-id='" + this.data.cols[i].id +"' data-max='" + this.data.cols[i].max +"'>"+ this.data.cols[i].name +"</th>").appendTo($header);
-      this.cols[i] = col;
+      $("<th id='col-" + this.data.cols[i].id + "' data-id='" + this.data.cols[i].id +"' data-max='" + this.data.cols[i].max +"'>"+ this.data.cols[i].name +"</th>").appendTo($header);
    }
 }
 Table.prototype.createRows = function() {
    for(i=0;i<this.data.rows.length;++i) {
       var row_data = this.data.rows[i];
-      row_data.table = this;
-      var row = new Row(row_data);
+      row_data.node = n;
+      var row = new Row(this.data.rows[i]);
       this.rows[i] = row;
    }
 }
