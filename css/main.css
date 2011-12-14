@@ -1,7 +1,23 @@
 * {margin: 0; padding: 0;}
 body {background-color: #ffffff; font-family: Arial, sans-serif; font-size: 13px; color: #444444;}
+a {color: #1E6EB5;}
 
 #container {}
 #header {min-height:40px; background-color: #4e89be;}
 #main {padding: 0 15px;}
 h1 {font-size:26px; margin:7px 0 15px;}
+
+.marktable {}
+	.marktable td, .marktable th {padding: 0 7px 3px 0;}
+	.marktable-code-col {}
+	.marktable-mark-col {}
+	
+	.marktable-td-sum {font-size: 16px;}
+	
+	.marktable-td-submit a {text-decoration: none; border-bottom: 1px dashed;}
+	
+	.marktable input {border: #4e89be 1px solid; height: 18px; padding: 0 2px; border-radius:2px;}
+	.marktable input.active {border-color: #FFAA49;}
+	.marktable input.error {border-color: #FF2B2B; background-color: #FFE0E0;}
+	.marktable-code {width: 80px;}
+	.marktable-mark {width: 50px;}
