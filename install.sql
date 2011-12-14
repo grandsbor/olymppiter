@@ -1,8 +1,32 @@
 SET NAMES utf8;
 
+CREATE TABLE IF NOT EXISTS `contests` (
+    `contest_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `parent_id`    SMALLINT UNSIGNED NOT NULL,
+    `contest_name` VARCHAR(255) NOT NULL,
+    INDEX(parent_id)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `tasks` (
-    `task_id`   MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `task_name` VARCHAR(255) NOT NULL
+    `task_id`    MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `contest_id` SMALLINT UNSIGNED NOT NULL,
+    `task_name`  VARCHAR(255) NOT NULL,
+    INDEX(contest_id)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `students` (
+    `student_id`   MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `student_name` VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `contestants` (
+    `contestant_id` MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `student_id`    MEDIUMINT UNSIGNED NOT NULL,
+    `contest_id`    SMALLINT UNSIGNED NOT NULL,
+    `code`          VARCHAR(9) NOT NULL,
+    INDEX(student_id),
+    INDEX(contest_id),
+    INDEX(code)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `subtasks` (
@@ -17,7 +41,15 @@ CREATE TABLE IF NOT EXISTS `subtasks` (
 
 CREATE TABLE IF NOT EXISTS `judges` (
     `judge_id`    SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `judge_name`  VARCHAR(255) NOT NULL,
     `judge_email` VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `judges_by_tasks` (
+    `judge_id` SMALLINT UNSIGNED NOT NULL,
+    `task_id`  MEDIUMINT UNSIGNED NOT NULL,
+    INDEX(judge_id),
+    INDEX(task_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `solutions` (

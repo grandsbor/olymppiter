@@ -1,4 +1,5 @@
 <?php
+//registration forms
 //temporary marks
 function get_subtasks($task_id) {
     $subtasks = array();
@@ -31,14 +32,20 @@ function get_temporary_marks($task_id, $judge_id) {
 }
 function save_temporary_marks($task_id, $judge_id, $marks) {
     // $marks is an array type (code, array of arrays type (subtask_id => value))
+    if (!$task_id || !$judge_id) return false;
+    //TODO: check if this judge can judge this task
     mysql_query("START TRANSACTION");
     $ret_codes = array();
     foreach($marks as $solution) {
-        if ($solution['id'])
+        $code = mysql_real_escape_string(strtoupper($solution['code']));
+        if ($solution['id']) {
             $solution['id'] = (int)$solution['id'];
+            //the code may have changed
+            if (!mysql_query("UPDATE solutions_tmp SET code = '$code' WHERE solution_id = ".$solution['id']." LIMIT 1")) return false;
+        }
         else {
             //this is a new solution, let's add it
-            if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '".mysql_real_escape_string(strtoupper($solution['code']))."')")) return false;
+            if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '$code')")) return false;
             $solution['id'] = mysql_insert_id();
         }
         $ret_codes[] = $solution['id'];
