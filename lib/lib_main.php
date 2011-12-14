@@ -76,7 +76,10 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
     mysql_query("START TRANSACTION");
     $ret_codes = array();
     foreach($marks as $solution) {
-        $code = mysql_real_escape_string(strtoupper($solution['code']));
+        $code = strtoupper(trim($solution['code']));
+        //check the code for validity
+        if (!preg_match('/^[0-9]\-[0-9]{2}[A-Z]{3}\-[0-9]$/', $code)) return false;
+        $code = mysql_real_escape_string($code);
         if ($solution['id']) {
             $solution['id'] = (int)$solution['id'];
             //the code may have changed
