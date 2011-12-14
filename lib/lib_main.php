@@ -6,11 +6,16 @@ function get_task_list() {
     //collect tasks
     while ($r = mysql_fetch_assoc($res)) {
         $contest = array('id' => $r['contest_id'], 'name' => $r['contest_name']);
-        $res1 = mysql_query("SELECT task_id, task_name FROM tasks WHERE contest_id = ".$r['contest_id']." ORDER BY task_id");
+        $res1 = mysql_query("SELECT task_id, task_name, status FROM tasks WHERE contest_id = ".$r['contest_id']." ORDER BY task_id");
         //tasks may be attached here
         if (mysql_num_rows($res1)) {
             while ($r1 = mysql_fetch_assoc($res1)) {
-                $contest['tasks'][] = array('id' => $r1['task_id'], 'name' => $r1['task_name'], 'judges' => get_judges_for_task($r1['task_id']));
+                $contest['tasks'][] = array(
+                    'id' => $r1['task_id'],
+                    'name' => $r1['task_name'],
+                    'status' => $r1['status'],
+                    'judges' => get_judges_for_task($r1['task_id'])
+                );
             }
             $out[] = $contest;
             continue;
@@ -21,7 +26,12 @@ function get_task_list() {
             $round = array('id' => $r1['contest_id'], 'name' => $r1['contest_name']);
             $res2 = mysql_query("SELECT task_id, task_name FROM tasks WHERE contest_id = ".$r1['contest_id']." ORDER BY task_id");
             while ($r2 = mysql_fetch_assoc($res2)) {
-                $round['tasks'][] = array('id' => $r2['task_id'], 'name' => $r2['task_name'], 'judges' => get_judges_for_task($r2['task_id']));
+                $round['tasks'][] = array(
+                    'id' => $r2['task_id'],
+                    'name' => $r2['task_name'],
+                    'status' => $r2['status'],
+                    'judges' => get_judges_for_task($r2['task_id'])
+                );
             }
             $contest['rounds'][] = $round;
         }
