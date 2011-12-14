@@ -67,8 +67,9 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
 }
 function get_aggregate_marks($task_id) {
     $out = array();
-    $res = mysql_query("SELECT solution_id, judge_id, code FROM solutions_tmp WHERE task_id = $task_id ORDER BY code");
+    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id LEFT JOIN contestants USING code FROM solutions_tmp t WHERE task_id = $task_id ORDER BY t.code");
     while ($r = mysql_fetch_assoc($res)) {
+        $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
         $t = array();
         while ($r1 = mysql_fetch_assoc($res1)) {
@@ -78,7 +79,7 @@ function get_aggregate_marks($task_id) {
                 'value' => $r1['mark_value']
             );
         }
-        $out[$r['code']][] = array(
+        $out[$r['code']]['judgments'][] = array(
             'id' => $r['solution_id'],
             'judge_id' => $r['judge_id'],
             'marks' => $t
