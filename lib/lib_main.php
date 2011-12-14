@@ -19,7 +19,7 @@ function get_temporary_marks($task_id, $judge_id) {
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=$r[0] ORDER BY subtask_id");
         $t = array();
         while ($r1 = mysql_fetch_assoc($res1)) {
-            $t[$r1['subtask_id']] = array('id' => $r1['mark_id'], 'value' => $r1['mark_value']);
+            $t[$r1['subtask_id']] = array('id' => $r1['mark_id'], 'value' => $r1['mark_value'], 'subtask' => $r1['subtask_id']);
         }
         $marks[] = array(
             'id'    => $r[0],

@@ -26,15 +26,18 @@ $rows = array(
       'fields' => array(
          3 => array(
             'id' => 8,
-            'value' => 5
+            'value' => 5,
+            'subtask' => 3
          ),
          1 => array(
             'id' => 9,
-            'value' => 3
+            'value' => 3,
+            'subtask' => 1
          ),
          2 => array(
             'id' => 11,
-            'value' => 2
+            'value' => 2,
+            'subtask' => 2
          ),
       ),
    ),
@@ -44,19 +47,30 @@ $rows = array(
       'fields' => array(
          1 => array(
             'id' => 1,
-            'value' => 2
+            'value' => 2,
+            'subtask' => 1
          ),
          3 => array(
             'id' => 2,
-            'value' => 4
+            'value' => 4,
+            'subtask' => 3
          ),
          2 => array(
             'id' => 3,
-            'value' => 3
+            'value' => 3,
+            'subtask' => 2
          ),
       ),
    ),
 );
-$smarty->assign('rows',json_encode($rows));
+$rows_reordered = array();
+foreach($rows as $row) {
+   $fields = array();
+   foreach($cols as $col) {
+      $fields[] = $row['fields'][$col['id']];
+   }
+   $rows_reordered[] = array('id' => $row['id'], 'code' => $row['code'], 'fields' => $fields);
+}
+$smarty->assign('rows',json_encode($rows_reordered));
 
 $smarty->display('one_judge_table.tpl');
