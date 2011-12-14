@@ -58,21 +58,27 @@ Row.prototype.save = function() {
          }
          var field = new Field($input);
          if(!field.check) {
+            this.showError('Есть неправильные поля');
             return;
          }
       }
       data[$input.attr('name')] = $input.val();
    });
+   this.hideError();
    
    data.action = 'save_marks';
+   data.judge_id = $('#judge_id').val();
+   data.task_id = $('#task_id').val();
    
    row.rowNode.find('input,a').attr('disabled','disabled');
    
    $.getJSON('ajax.php',data,function(result){
       row.rowNode.find('input,a').removeAttr('disabled');
-      if(!data.id && result.id) {
+      if(result.id) {
+         console.log(result.id);
          row.rowNode.find('input[name="id"]').val(result.id);
          row.rowNode.data('id',result.id);
+         console.log(row.rowNode.data('id'));
       }
       if(row.isLast()) {
          var new_row = new Row();
@@ -85,7 +91,10 @@ Row.prototype.recount = function() {
    var sum = 0;
    this.rowNode.find('input').each(function(){
       if($(this).data('type') == 'mark') {
-         sum += parseFloat($(this).val());
+         var mark = parseFloat($(this).val());
+         if(!isNaN(mark)){
+            sum += mark;
+         }
       }
    });
    this.rowNode.find('.marktable-td-sum').text(sum);
@@ -110,7 +119,10 @@ Row.prototype.createHtml = function(data) {
       for(i=0;i<data.fields.length;++i) {
          var field = new Field();
          html += field.createHtml(data.fields[i]);
-         sum += data.fields[i].value;
+         var mark = parseFloat(data.fields[i].value);
+         if(!isNaN(mark)) {
+            sum += mark;
+         }
       }
    }
    else {
@@ -123,12 +135,31 @@ Row.prototype.createHtml = function(data) {
    
    html += '<td class="marktable-td-sum">' + sum + '</td>';
    html += '<td class="marktable-td-submit"><a href="#">Сохранить</a></td>';
+   html += '<td class="marktable-td-delete"><a href="#" title="удалить ряд"></a></td>';
+   html += '<td class="marktable-td-error"></td>';
    html += '</tr>';
    return html;
+}
+Row.prototype.remove = function() {
+   var row = this;
+   var data = {};
+   data.id = this.rowNode.data('id');
+   data.action = 'delete_marks';
+   $.getJSON('ajax.php',data,function(res){
+      if(res.result) {
+         row.rowNode.remove();
+      }
+   })
 }
 Row.prototype.isLast = function() {
    return (this.rowNode.next().length == 0);
 };
+Row.prototype.showError = function(msg) {
+   this.rowNode.find('.marktable-td-error').text(msg);
+}
+Row.prototype.hideError = function() {
+   this.rowNode.find('.marktable-td-error').text('');
+}
 
 function Table(data) {
    this.tableNode = null;
@@ -147,9 +178,14 @@ function Table(data) {
       else {
          this.createCols();
       }
-      
-      if(this.data.rows) {
+
+      if(this.data.rows.length) {
          this.createRows();
+      }
+      else {
+         var new_row = new Row();
+         this.tableNode.append(new_row.createHtml());
+         this.tableNode.find('.marktable-code').focus();
       }
       
       this.tableNode.delegate('input','focus',function(event){
@@ -187,6 +223,16 @@ function Table(data) {
             break;
             }
       });
+      
+      this.tableNode.delegate('.marktable-td-delete a','click',function(event){
+         event.preventDefault();
+         if(confirm('Точно удалить?')) {
+            var row = new Row($(event.target));
+            row.remove();
+            row.delete();
+         }
+         
+      })
    }
 }
 Table.prototype.createCols = function() {

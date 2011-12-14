@@ -13,8 +13,11 @@ h1 {font-size:26px; margin:7px 0 15px;}
 	.marktable-mark-col {}
 	
 	.marktable-td-sum {font-size: 16px;}
+   .marktable-td-error {color: #CE0000; font-style:italic;}
 	
 	.marktable-td-submit a {text-decoration: none; border-bottom: 1px dashed;}
+   
+   .marktable-td-delete a {text-decoration:none; background:url("../images/delete.png") no-repeat; width:16px; height:16px; display: inline-block; vertical-align:-5px;}
 	
 	.marktable input {border: #4e89be 1px solid; height: 18px; padding: 0 2px; border-radius:2px;}
 	.marktable input.active {border-color: #FFAA49;}

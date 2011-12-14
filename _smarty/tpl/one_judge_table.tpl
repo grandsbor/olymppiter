@@ -9,5 +9,6 @@ $(document).ready(function(){
 })
 </script>
 <h1>Проверка задач</h1>
+<input id='judge_id' value="{$judge_id}" type="hidden"><input type="hidden" id='task_id' value="{$task_id}">
 <table id="main-table"></table>
 {/block}
