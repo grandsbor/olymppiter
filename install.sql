@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `marks_tmp` (
     `mark_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `subtask_id`  MEDIUMINT UNSIGNED NOT NULL,
     `solution_id` INT UNSIGNED NOT NULL,
-    `mark_value`  TINYINT UNSIGNED NOT NULL,
+    `mark_value`  DECIMAL(3,1) UNSIGNED NOT NULL,
     INDEX(subtask_id),
     INDEX(solution_id)
 ) ENGINE = INNODB;
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `final_marks` (
     `mark_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `subtask_id`  MEDIUMINT UNSIGNED NOT NULL,
     `solution_id` INT UNSIGNED NOT NULL,
-    `mark_value`  TINYINT UNSIGNED NOT NULL,
+    `mark_value`  DECIMAL(3,1) UNSIGNED NOT NULL,
     INDEX(subtask_id),
     INDEX(solution_id)
 ) ENGINE = INNODB;

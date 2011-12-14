@@ -107,7 +107,7 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
 
         foreach($solution['marks'] as $subtask_id => $value) {
             $subtask_id = (int)$subtask_id;
-            $value = (int)$value;
+            $value = (float)$value;
             $res = mysql_query("SELECT mark_id FROM marks_tmp WHERE solution_id=".$solution['id']." AND subtask_id=$subtask_id LIMIT 1");
             if (mysql_num_rows($res)) {
                 $r = mysql_fetch_row($res);
