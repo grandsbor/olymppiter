@@ -107,6 +107,11 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
     mysql_query("COMMIT");
     return $ret_codes;
 }
+function delete_temporary_solution($solution_id) {
+    if (!$solution_id) return false;
+    if (!mysql_query("DELETE FROM solutions_tmp WHERE solution_id = $solution_id LIMIT 1")) return false;
+    return true;
+}
 function get_aggregate_marks($task_id) {
     $out = array();
     $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id LEFT JOIN contestants USING code FROM solutions_tmp t WHERE task_id = $task_id ORDER BY t.code");

@@ -16,4 +16,7 @@ switch($action) {
             echo json_encode(array('result' => false));
         }
         break;
+    case "delete_marks":
+        echo json_encode(array('result' => delete_temporary_solution((int)$_GET['id'])));
+        break;
 }
