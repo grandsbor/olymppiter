@@ -81,23 +81,26 @@ function get_temporary_marks($task_id, $judge_id) {
 }
 function save_temporary_marks($task_id, $judge_id, $marks) {
     // $marks is an array type (code, array of arrays type (subtask_id => value))
-    if (!$task_id || !$judge_id) return false;
+    if (!$task_id || !$judge_id) return "Bad task id or judge id";
     //TODO: check if this judge can judge this task
     mysql_query("START TRANSACTION");
     $ret_codes = array();
     foreach($marks as $solution) {
         $code = strtoupper(trim($solution['code']));
         //check the code for validity
-        if (!preg_match('/^[0-9]\-[0-9]{2}[A-Z]{3}\-[0-9]$/', $code)) return false;
+        if (!preg_match('/^[0-9]\-[0-9]{2}[A-Z]{3}\-[0-9]$/', $code)) return "Bad code format";
         $code = mysql_real_escape_string($code);
         if ($solution['id']) {
             $solution['id'] = (int)$solution['id'];
             //the code may have changed
-            if (!mysql_query("UPDATE solutions_tmp SET code = '$code' WHERE solution_id = ".$solution['id']." LIMIT 1")) return false;
+            if (!mysql_query("UPDATE solutions_tmp SET code = '$code' WHERE solution_id = ".$solution['id']." LIMIT 1")) return "DB Error";
         }
         else {
             //this is a new solution, let's add it
-            if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '$code')")) return false;
+            //but first check whether the code if unique
+            $res = mysql_query("SELECT solution_id FROM solutions_tmp WHERE task_id=$task_id AND judge_id=$judge_id AND code='$code' LIMIT 1");
+            if (mysql_num_rows($res)) return "Non-unique code";
+            if (!mysql_query("INSERT INTO solutions_tmp VALUES (NULL, $task_id, $judge_id, '$code')")) return "DB Error";
             $solution['id'] = mysql_insert_id();
         }
         $ret_codes[] = $solution['id'];
@@ -108,9 +111,9 @@ function save_temporary_marks($task_id, $judge_id, $marks) {
             $res = mysql_query("SELECT mark_id FROM marks_tmp WHERE solution_id=".$solution['id']." AND subtask_id=$subtask_id LIMIT 1");
             if (mysql_num_rows($res)) {
                 $r = mysql_fetch_row($res);
-                if (!mysql_query("UPDATE marks_tmp SET mark_value=$value WHERE mark_id=$r[0] LIMIT 1")) return false;
+                if (!mysql_query("UPDATE marks_tmp SET mark_value=$value WHERE mark_id=$r[0] LIMIT 1")) return "DB Error";
             } else {
-                if (!mysql_query("INSERT INTO marks_tmp VALUES (NULL, $subtask_id, ".$solution['id'].", $value)")) return false;
+                if (!mysql_query("INSERT INTO marks_tmp VALUES (NULL, $subtask_id, ".$solution['id'].", $value)")) return "DB Error";
             }
         }
     }

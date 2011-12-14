@@ -10,10 +10,10 @@ switch($action) {
             (int)$_GET['judge_id'],
             array(array('id' => $_GET['id'], 'code' => $_GET['code'], 'marks' => $_GET['mark']))
         );
-        if ($result) {
+        if (is_array($result)) {
             echo json_encode(array('result' => true, 'id' => $result[0]));
         } else {
-            echo json_encode(array('result' => false));
+            echo json_encode(array('result' => false, 'message' => $result));
         }
         break;
     case "delete_marks":
