@@ -50,21 +50,28 @@ Row.prototype.save = function() {
    var row = this;
    
    var data = {};
+   var errors = false;
    row.rowNode.find('input').each(function(index){
       var $input = $(this);
       if($input.data('type') == 'code' || $input.data('type') == 'mark') {
          if($input.val() == '') {
-            input.val() = '0';
+            $input.val('0');
          }
          var field = new Field($input);
-         if(!field.check) {
-            this.showError('Есть неправильные поля');
+         if(!field.check()) {
+            errors = true;
             return;
          }
       }
       data[$input.attr('name')] = $input.val();
    });
-   this.hideError();
+   if(errors) {
+      row.showError('Есть неправильные поля');
+      return;
+   }
+   else {
+      row.hideError();
+   }
    
    data.action = 'save_marks';
    data.judge_id = $('#judge_id').val();
@@ -72,18 +79,22 @@ Row.prototype.save = function() {
    
    row.rowNode.find('input,a').attr('disabled','disabled');
    
-   $.getJSON('ajax.php',data,function(result){
-      row.rowNode.find('input,a').removeAttr('disabled');
-      if(result.id) {
-         console.log(result.id);
-         row.rowNode.find('input[name="id"]').val(result.id);
-         row.rowNode.data('id',result.id);
-         console.log(row.rowNode.data('id'));
+   $.getJSON('ajax.php',data,function(res){
+      
+      if(res.result == true) {
+         row.rowNode.find('input,a').removeAttr('disabled');
+         if(res.id) {
+            row.rowNode.find('input[name="id"]').val(res.id);
+            row.rowNode.data('id',res.id);
+         }
+         if(row.isLast()) {
+            var new_row = new Row();
+            row.rowNode.after(new_row.createHtml());
+            row.rowNode.next().find('.marktable-code').focus();
+         }
       }
-      if(row.isLast()) {
-         var new_row = new Row();
-         row.rowNode.after(new_row.createHtml());
-         row.rowNode.next().find('.marktable-code').focus();
+      else {
+         row.showError(res.message ? res.message : 'Не удалось сохранить');
       }
    })
 }
@@ -143,6 +154,7 @@ Row.prototype.createHtml = function(data) {
 Row.prototype.remove = function() {
    var row = this;
    var data = {};
+   console.log(this.rowNode);
    data.id = this.rowNode.data('id');
    data.action = 'delete_marks';
    $.getJSON('ajax.php',data,function(res){
@@ -227,9 +239,9 @@ function Table(data) {
       this.tableNode.delegate('.marktable-td-delete a','click',function(event){
          event.preventDefault();
          if(confirm('Точно удалить?')) {
-            var row = new Row($(event.target));
+            var row = new Row($(event.target).closest('tr'));
             row.remove();
-            row.delete();
+            delete(row);
          }
          
       })
