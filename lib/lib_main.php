@@ -1,6 +1,45 @@
 <?php
+//common
+function get_task_list() {
+    $out = array();
+    $res = mysql_query("SELECT contest_id, contest_name FROM contests WHERE parent_id = 0 ORDER BY contest_id");
+    //collect tasks
+    while ($r = mysql_fetch_assoc($res)) {
+        $contest = array('id' => $r['contest_id'], 'name' => $r['contest_name']);
+        $res1 = mysql_query("SELECT task_id, task_name FROM tasks WHERE contest_id = ".$r['contest_id']." ORDER BY task_id");
+        //tasks may be attached here
+        if (mysql_num_rows($res1)) {
+            while ($r1 = mysql_fetch_assoc($res1)) {
+                $contest['tasks'][] = array('id' => $r1['task_id'], 'name' => $r1['task_name'], 'judges' => get_judges_for_task($r1['task_id']));
+            }
+            $out[] = $contest;
+            continue;
+        }
+        //or they may be attached lower
+        $res1 = mysql_query("SELECT contest_id, contest_name FROM contests WHERE parent_id = ".$r['contest_id']." ORDER BY contest_id");
+        while ($r1 = mysql_fetch_assoc($res1)) {
+            $round = array('id' => $r1['contest_id'], 'name' => $r1['contest_name']);
+            $res2 = mysql_query("SELECT task_id, task_name FROM tasks WHERE contest_id = ".$r1['contest_id']." ORDER BY task_id");
+            while ($r2 = mysql_fetch_assoc($res2)) {
+                $round['tasks'][] = array('id' => $r2['task_id'], 'name' => $r2['task_name'], 'judges' => get_judges_for_task($r2['task_id']));
+            }
+            $contest['rounds'][] = $round;
+        }
+        $out[] = $contest;
+    }
+    return $out;
+}
+function get_judges_for_task($task_id) {
+    //returns array of assoc arrays type (id, name, email)
+    $res = mysql_query("SELECT * FROM judges WHERE judge_id IN (SELECT judge_id FROM judges_by_tasks WHERE task_id = $task_id)");
+    $out = array();
+    while ($r = mysql_fetch_assoc($res)) {
+        $out[] = array('id' => $r['judge_id'], 'name' => $r['judge_name'], 'email' => $r['judge_email']);
+    }
+    return $out;
+}
 //registration forms
-//temporary marks
+//judging
 function get_subtasks($task_id) {
     $subtasks = array();
     $res = mysql_query("SELECT subtask_id, max_mark, `comment` FROM subtasks WHERE task_id=$task_id ORDER BY orderby");
