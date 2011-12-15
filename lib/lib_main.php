@@ -144,14 +144,23 @@ function delete_temporary_solution($solution_id) {
 }
 function get_aggregate_marks($task_id) {
     $out = array();
+    //already aggregated
+    $res = mysql_query("SELECT solution_id, s.contestant_id, code FROM solutions s LEFT JOIN contestants USING(contestant_id) WHERE task_id = $task_id ORDER BY code");
+    while ($r = mysql_fetch_assoc($res)) {
+        $out[$r['code']]['contestant_id'] = (int)$r['contestant_id'];
+        $res1 = mysql_query("SELECT subtask_id, mark_value FROM final_marks WHERE solution_id = ".$r['solution_id']." ORDER BY subtask_id");
+        while ($r1 = mysql_fetch_assoc($res1)) {
+            $out[$r['code']]['aggregate_marks'][$r1['subtask_id']] = strip_zero($r1['mark_value']);
+        }
+    }
+    //not yet aggregated
     $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) WHERE task_id = $task_id ORDER BY t.code");
     while ($r = mysql_fetch_assoc($res)) {
         
         $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
         $out[$r['code']]['contestant_id'] = (int)$r['contestant_id'];
 
-        $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
-        $t = array();
+        $res1 = mysql_query("SELECT subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
         
         while ($r1 = mysql_fetch_assoc($res1)) {
             $out[$r['code']]['marks'][$r1['subtask_id']][$r['judge_id']] = strip_zero($r1['mark_value']);
