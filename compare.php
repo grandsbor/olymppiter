@@ -8,6 +8,9 @@ $smarty->assign('task_id',$task_id);
 
 $cols = get_subtasks($task_id);
 
+$marks = get_aggregate_marks($task_id);
+var_dump($marks);
+
 $smarty->assign('cols',$cols);
 
 $smarty->display('compare_table.tpl');
