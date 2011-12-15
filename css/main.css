@@ -9,6 +9,8 @@ h1 {font-size:26px; margin:7px 0 15px;}
 
 .marktable {}
 	.marktable td, .marktable th {padding: 0 7px 3px 0;}
+   .marktable td.error {color:#FF2B2B;}
+   .marktable tr.saved td {background-color: #D8FFDF;}
 	.marktable-code-col {}
 	.marktable-mark-col {}
 	
@@ -16,6 +18,7 @@ h1 {font-size:26px; margin:7px 0 15px;}
    .marktable-td-error {color: #CE0000; font-style:italic;}
 	
 	.marktable-td-submit a {text-decoration: none; border-bottom: 1px dashed;}
+   .marktable-td-submit a.disabled {border-bottom: none; color: #666666;}
    
    .marktable-td-delete a {text-decoration:none; background:url("../images/delete.png") no-repeat; width:16px; height:16px; display: inline-block; vertical-align:-5px;}
 	

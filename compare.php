@@ -11,7 +11,7 @@ $smarty->assign('cols',$cols);
 $smarty->assign('judges',get_judges_for_task($task_id));
 
 $marks = get_aggregate_marks($task_id);
-var_dump($marks);
+//var_dump($marks);
 $smarty->assign('data',$marks);
 
 $smarty->display('compare_table.tpl');
