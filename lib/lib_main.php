@@ -1,5 +1,8 @@
 <?php
 //common
+function strip_zero($n) {
+    return $n == (int)$n ? (int)$n : $n;
+}
 function get_task_list() {
     $out = array();
     $res = mysql_query("SELECT contest_id, contest_name FROM contests WHERE parent_id = 0 ORDER BY contest_id");
@@ -48,6 +51,20 @@ function get_judges_for_task($task_id) {
     }
     return $out;
 }
+function get_contest_by_task($task_id, $highest = false) {
+    $res = mysql_query("SELECT contest_id FROM tasks WHERE task_id = $task_id LIMIT 1");
+    if (!mysql_num_rows($res)) return false;
+    
+    $r = mysql_fetch_row($res);
+    if (!$highest) return $r[0];
+
+    $pid = $r[0];
+    while ($pid > 0) {
+        $r = mysql_fetch_row(mysql_query("SELECT parent_id FROM contests WHERE contest_id = $pid LIMIT 1"));
+        if ($r[0] == 0) return $pid;
+        $pid = $r[0];
+    }
+}
 //registration forms
 //judging
 function get_subtasks($task_id) {
@@ -69,7 +86,7 @@ function get_temporary_marks($task_id, $judge_id) {
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=$r[0] ORDER BY subtask_id");
         $t = array();
         while ($r1 = mysql_fetch_assoc($res1)) {
-            $t[$r1['subtask_id']] = array('id' => $r1['mark_id'], 'value' => $r1['mark_value'], 'subtask' => $r1['subtask_id']);
+            $t[$r1['subtask_id']] = array('id' => $r1['mark_id'], 'value' => strip_zero($r1['mark_value']), 'subtask' => $r1['subtask_id']);
         }
         $marks[] = array(
             'id'    => $r[0],
@@ -132,14 +149,55 @@ function get_aggregate_marks($task_id) {
         
         $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
         $out[$r['code']]['contestant_id'] = (int)$r['contestant_id'];
-        
+
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
         $t = array();
         
         while ($r1 = mysql_fetch_assoc($res1)) {
-            $out[$r['code']]['marks'][$r1['subtask_id']][$r['judge_id']] = $r1['mark_value'];
+            $out[$r['code']]['marks'][$r1['subtask_id']][$r['judge_id']] = strip_zero($r1['mark_value']);
         }
     }
     return $out;
+}
+function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
+    if (!$task_id || !$contestant_id || !is_array($marks) || !$marks) return false;
+    
+    //it may be an unknown contestant, let's create him then
+    mysql_query("START TRANSACTION");
+    if ($contestant_id == -1) {
+        //but first we have to know contest id
+        $contest_id = get_contest_by_task($task_id, true);
+        if (!$contest_id || !$code) return false;
+        $code = mysql_real_escape_string(strtoupper(trim($code)));
+        if (!mysql_query("INSERT INTO contestants VALUES (NULL, 0, $contest_id, '$code')")) return false;
+        $contestant_id = mysql_insert_id();
+    }
+
+    //perhaps we need to create a new solution (if it is the first saving)
+    $res = mysql_query("SELECT solution_id FROM solutions WHERE task_id = $task_id AND contestant_id = $contestant_id LIMIT 1");
+    if (!mysql_num_rows($res)) {
+        if (!mysql_query("INSERT INTO solutions VALUES (NULL, $task_id, $contestant_id, '')")) return false;
+        $solution_id = mysql_insert_id();
+    } else {
+        $r = mysql_fetch_row($res);
+        $solution_id = $r[0];
+    }
+
+    //save marks (checking whether they exist)
+    $old_marks = array();
+    $res = mysql_query("SELECT mark_id, subtask_id FROM final_marks WHERE solution_id = $solution_id");
+    while ($r = mysql_fetch_assoc($res)) {
+        $old_marks[$r['subtask_id']] = $r['mark_id'];
+    }
+    foreach ($marks as $sid => $val) {
+        if ($old_marks[$sid]) {
+            //update
+            if (!mysql_query("UPDATE final_marks SET mark_value = ".(float)$val." WHERE mark_id = ".$old_marks[$sid]." LIMIT 1")) return false;
+        } else {
+            //insert
+            if (!mysql_query("INSERT INTO final_marks VALUES (NULL, $sid, $solution_id, ".(float)$val.")")) return false;
+        }
+    }
+    return $contestant_id;
 }
 ?>
