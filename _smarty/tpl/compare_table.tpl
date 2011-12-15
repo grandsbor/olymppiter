@@ -5,7 +5,7 @@
 <table id="main-table">
 <thead>
 	<tr>
-		<th>Код</th>{foreach $cols as $col}<th>{$col.name} (max $col.max)</th>{/foreach}<th>Итого</th>
+		<th>Код</th>{foreach $cols as $col}<th>{$col.name} (max {$col.max})</th>{/foreach}<th>Итого</th>
 	</tr>
 </thead>
 {foreach $data as $code=>$row}
