@@ -3,7 +3,7 @@ function Field() {
 }
 
 Field.prototype.createHtml = function(data) {
-   var html = '<td class="marktable-td-mark"><input name="mark[' + data.subtask + ']" value="' + (data.value ? data.value : '') + '" data-subtask="' + data.subtask + '" data-type="mark" class="marktable-mark"></td>';
+   var html = '<td class="marktable-td-mark"><input name="mark[' + data.subtask + ']" value="' + (!isNaN(data.value) ? data.value : '') + '" data-subtask="' + data.subtask + '" data-type="mark" class="marktable-mark"></td>';
    return html;
 }
 
