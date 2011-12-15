@@ -127,7 +127,7 @@ function delete_temporary_solution($solution_id) {
 }
 function get_aggregate_marks($task_id) {
     $out = array();
-    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id LEFT JOIN contestants USING code FROM solutions_tmp t WHERE task_id = $task_id ORDER BY t.code");
+    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) WHERE task_id = $task_id ORDER BY t.code");
     while ($r = mysql_fetch_assoc($res)) {
         $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
