@@ -160,7 +160,8 @@ function get_aggregate_marks($task_id) {
     return $out;
 }
 function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
-    if (!$task_id || !$contestant_id || !is_array($marks) || !$marks) return false;
+    if (!$contestant_id) return "No contestant id given";
+    if (!$task_id || !is_array($marks) || !$marks) return "No task id given or empty marks";
     
     //it may be an unknown contestant, let's create him then
     mysql_query("START TRANSACTION");
@@ -169,14 +170,14 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
         $contest_id = get_contest_by_task($task_id, true);
         if (!$contest_id || !$code) return false;
         $code = mysql_real_escape_string(strtoupper(trim($code)));
-        if (!mysql_query("INSERT INTO contestants VALUES (NULL, 0, $contest_id, '$code')")) return false;
+        if (!mysql_query("INSERT INTO contestants VALUES (NULL, 0, $contest_id, '$code')")) return "DB Error";
         $contestant_id = mysql_insert_id();
     }
 
     //perhaps we need to create a new solution (if it is the first saving)
     $res = mysql_query("SELECT solution_id FROM solutions WHERE task_id = $task_id AND contestant_id = $contestant_id LIMIT 1");
     if (!mysql_num_rows($res)) {
-        if (!mysql_query("INSERT INTO solutions VALUES (NULL, $task_id, $contestant_id, '')")) return false;
+        if (!mysql_query("INSERT INTO solutions VALUES (NULL, $task_id, $contestant_id, '')")) return "DB Error";
         $solution_id = mysql_insert_id();
     } else {
         $r = mysql_fetch_row($res);
@@ -192,12 +193,13 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
     foreach ($marks as $sid => $val) {
         if ($old_marks[$sid]) {
             //update
-            if (!mysql_query("UPDATE final_marks SET mark_value = ".(float)$val." WHERE mark_id = ".$old_marks[$sid]." LIMIT 1")) return false;
+            if (!mysql_query("UPDATE final_marks SET mark_value = ".(float)$val." WHERE mark_id = ".$old_marks[$sid]." LIMIT 1")) return "DB Error";
         } else {
             //insert
-            if (!mysql_query("INSERT INTO final_marks VALUES (NULL, $sid, $solution_id, ".(float)$val.")")) return false;
+            if (!mysql_query("INSERT INTO final_marks VALUES (NULL, $sid, $solution_id, ".(float)$val.")")) return "DB Error";
         }
     }
+    mysql_query("COMMIT");
     return $contestant_id;
 }
 ?>

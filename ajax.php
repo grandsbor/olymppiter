@@ -16,6 +16,19 @@ switch($action) {
             echo json_encode(array('result' => false, 'message' => $result));
         }
         break;
+    case "save_aggr":
+        $result = save_aggregate_string(
+            (int)$_GET['task_id'],
+            (int)$_GET['id'],
+            $_GET['code'],
+            $_GET['marks']
+        );
+        if (is_int($result)) {
+            echo json_encode(array('result' => true, 'id' => $result));
+        } else {
+            echo json_encode(array('result' => false, 'message' => $result));
+        }
+        break;
     case "delete_marks":
         echo json_encode(array('result' => delete_temporary_solution((int)$_GET['id'])));
         break;
