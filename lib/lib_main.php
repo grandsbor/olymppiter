@@ -129,11 +129,11 @@ function get_aggregate_marks($task_id) {
     $out = array();
     $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) WHERE task_id = $task_id ORDER BY t.code");
     while ($r = mysql_fetch_assoc($res)) {
-        $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
+        /*$out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
         $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
         $t = array();
         while ($r1 = mysql_fetch_assoc($res1)) {
-            $t[] = array(
+            $t[$r1['subtask_id']] = array(
                 'id' => $r1['mark_id'],
                 'subtask_id' => $r1['subtask_id'],
                 'value' => $r1['mark_value']
@@ -143,7 +143,15 @@ function get_aggregate_marks($task_id) {
             'id' => $r['solution_id'],
             'judge_id' => $r['judge_id'],
             'marks' => $t
-        );
+        );*/
+        
+        $out[$r['code']]['invalid'] = 1 - (bool)$r['contestant_id'];
+        $res1 = mysql_query("SELECT mark_id, subtask_id, mark_value FROM marks_tmp WHERE solution_id=".$r['solution_id']." ORDER BY subtask_id");
+        $t = array();
+        
+        while ($r1 = mysql_fetch_assoc($res1)) {
+            $out[$r['code']]['marks'][$r1['subtask_id']][$r['judge_id']] = $r1['mark_value'];
+        }
     }
     return $out;
 }
