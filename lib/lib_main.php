@@ -191,7 +191,7 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
         $old_marks[$r['subtask_id']] = $r['mark_id'];
     }
     foreach ($marks as $sid => $val) {
-        if ($old_marks[$sid]) {
+        if (isset($old_marks[$sid])) {
             //update
             if (!mysql_query("UPDATE final_marks SET mark_value = ".(float)$val." WHERE mark_id = ".$old_marks[$sid]." LIMIT 1")) return "DB Error";
         } else {
