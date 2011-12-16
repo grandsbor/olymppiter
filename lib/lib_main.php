@@ -144,14 +144,15 @@ function delete_temporary_solution($solution_id) {
 }
 function get_aggregate_marks($task_id) {
     $out = array();
+    $out_aggr = array();
     $aggr_codes = array();
     //already aggregated
     $res = mysql_query("SELECT solution_id, s.contestant_id, code FROM solutions s LEFT JOIN contestants USING(contestant_id) WHERE task_id = $task_id ORDER BY code");
     while ($r = mysql_fetch_assoc($res)) {
-        $out[$r['code']]['contestant_id'] = (int)$r['contestant_id'];
+        $out_aggr[$r['code']]['contestant_id'] = (int)$r['contestant_id'];
         $res1 = mysql_query("SELECT subtask_id, mark_value FROM final_marks WHERE solution_id = ".$r['solution_id']." ORDER BY subtask_id");
         while ($r1 = mysql_fetch_assoc($res1)) {
-            $out[$r['code']]['aggregate_marks'][$r1['subtask_id']] = strip_zero($r1['mark_value']);
+            $out_aggr[$r['code']]['aggregate_marks'][$r1['subtask_id']] = strip_zero($r1['mark_value']);
         }
         $aggr_codes[] = $r['code'];
     }
@@ -170,7 +171,7 @@ function get_aggregate_marks($task_id) {
             $out[$r['code']]['marks'][$r1['subtask_id']][$r['judge_id']] = strip_zero($r1['mark_value']);
         }
     }
-    return $out;
+    return array_merge($out, $out_aggr);
 }
 function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
     if (!$contestant_id) return "No contestant id given";

@@ -1,6 +1,7 @@
 {extends file="main.tpl"}
 {block name="content"}
 <script>
+   var judges = {$judges|json_encode};
    $(document).ready(function(){
       $('#main-table').delegate('.marktable-td-submit a','click',function(event){
          var $a = $(event.target).closest('a');
@@ -54,6 +55,9 @@
    function recount($tr) {
       var sum = [];
       var i = 0;
+      for (i=0; i<judges.length; ++i) {
+          sum[i] = 0;
+      }
       $tr.find('input.marktable-mark').each(function(){
          var $input = $(this);
          if(parseFloat($input.val()) != $input.val()) {
