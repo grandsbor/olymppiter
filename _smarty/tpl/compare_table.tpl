@@ -100,6 +100,7 @@
    }
 </script>
 <h1>Сверка</h1>
+<a href="result.php?task_id={$task_id}">Сохранить файл</a>
 <input type="hidden" id='task_id' value="{$task_id}">
 <table id="main-table" class="marktable">
 <thead>

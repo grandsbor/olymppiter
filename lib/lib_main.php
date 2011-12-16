@@ -216,4 +216,20 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
     mysql_query("COMMIT");
     return $contestant_id;
 }
+function get_task_result($task_id) {
+    $contest_id = get_contest_by_task($task_id,true);
+    
+    $res = mysql_query("select contestant_id, ceil(sum(mark_value)) as mark from solutions left join final_marks using(solution_id) where task_id = 1 group by solution_id");
+    $solutions = array();
+    while($r = mysql_fetch_assoc($res)){
+        $solutions[$r['contestant_id']] = $r['mark'];
+    }
+    //var_dump($solutions);
+    $res1 = mysql_query("select code, contestant_id from contestants where contest_id = " . $contest_id . " order by code");
+    $contestants = array();
+    while($r1 = mysql_fetch_assoc($res1)){
+        $contestants[$r1['code']] = isset($solutions[$r1['contestant_id']]) ? $solutions[$r1['contestant_id']] : null;
+    }
+    return $contestants;
+}
 ?>
