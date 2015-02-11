@@ -4,7 +4,7 @@ if (!headers_sent()) {
     header("Content-type: text/html; charset=utf-8");
 }
 error_reporting(E_ALL);
-ini_set('display_errors',1);
+//ini_set('display_errors',1);
 
 $config = parse_ini_file(dirname(__FILE__) . '/../config.ini', true);
 

@@ -66,7 +66,40 @@ function get_contest_by_task($task_id, $highest = false) {
     }
 }
 //registration forms
+function check_judge_passwd($id, $passwd) {
+    $hash = md5(trim($passwd));
+    if (mysql_num_rows(mysql_query("SELECT * FROM judges WHERE judge_id=$id AND pwd_hash='$hash' LIMIT 1")))
+        return true;
+    return false;
+}
 //judging
+function get_all_judges() {
+    $res = mysql_query("SELECT judge_id, judge_name FROM judges ORDER BY judge_name");
+    $out = array();
+    while ($r = mysql_fetch_array($res))
+        $out[] = array('id' => $r['judge_id'], 'name' => $r['judge_name']);
+    return $out;
+}
+function get_judge_name($id) {
+    $r = mysql_fetch_array(mysql_query("SELECT judge_name FROM judges WHERE judge_id = $id LIMIT 1"));
+    return $r[0];
+}
+function get_tasks_for_judge($id) {
+    $res = mysql_query("
+        SELECT task_id, task_name, c.contest_name
+        FROM judges_by_tasks jt
+        LEFT JOIN tasks t
+            USING (task_id)
+        LEFT JOIN contests c
+            USING (contest_id)
+        WHERE judge_id = $id
+        ORDER BY 1
+    ");
+    $out = array();
+    while ($r = mysql_fetch_array($res))
+        $out[] = array('id' => $r['task_id'], 'title' => $r['task_name'], 'contest' => $r['contest_name']);
+    return $out;
+}
 function get_subtasks($task_id) {
     $subtasks = array();
     $res = mysql_query("SELECT subtask_id, max_mark, `comment` FROM subtasks WHERE task_id=$task_id ORDER BY orderby");
@@ -219,7 +252,7 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
 function get_task_result($task_id) {
     $contest_id = get_contest_by_task($task_id,true);
     
-    $res = mysql_query("select contestant_id, ceil(sum(mark_value)) as mark from solutions left join final_marks using(solution_id) where task_id = 1 group by solution_id");
+    $res = mysql_query("select contestant_id, ceil(sum(mark_value)) as mark from solutions left join final_marks using(solution_id) where task_id = $task_id group by solution_id");
     $solutions = array();
     while($r = mysql_fetch_assoc($res)){
         $solutions[$r['contestant_id']] = $r['mark'];

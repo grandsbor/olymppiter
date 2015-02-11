@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `subtasks` (
 CREATE TABLE IF NOT EXISTS `judges` (
     `judge_id`    SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `judge_name`  VARCHAR(255) NOT NULL,
+    `pwd_hash`    VARCHAR(32) NOT NULL,
     `judge_email` VARCHAR(255) NOT NULL
 ) ENGINE = INNODB;
 
