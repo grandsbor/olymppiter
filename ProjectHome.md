@@ -1,0 +1,1 @@
+Interface for judging SPb Olympiad in linguistics (http://mathlingvo.ru/olympiad)
