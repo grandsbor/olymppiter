@@ -190,7 +190,7 @@ function get_aggregate_marks($task_id) {
         $aggr_codes[] = $r['code'];
     }
     //not yet aggregated
-    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) WHERE task_id = $task_id ORDER BY t.code");
+    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) LEFT JOIN tasks USING (task_id) WHERE task_id = $task_id and contestants.contest_id=tasks.contest_id ORDER BY t.code");
     while ($r = mysql_fetch_assoc($res)) {
 
         if (in_array($r['code'], $aggr_codes)) continue;
@@ -250,7 +250,7 @@ function save_aggregate_string($task_id, $contestant_id, $code, $marks) {
     return $contestant_id;
 }
 function get_task_result($task_id) {
-    $contest_id = get_contest_by_task($task_id,true);
+    $contest_id = get_contest_by_task($task_id);
     
     $res = mysql_query("select contestant_id, ceil(sum(mark_value)) as mark from solutions left join final_marks using(solution_id) where task_id = $task_id group by solution_id");
     $solutions = array();
