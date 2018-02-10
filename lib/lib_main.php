@@ -190,7 +190,18 @@ function get_aggregate_marks($task_id) {
         $aggr_codes[] = $r['code'];
     }
     //not yet aggregated
-    $res = mysql_query("SELECT solution_id, judge_id, t.code, contestant_id FROM solutions_tmp t LEFT JOIN contestants USING (code) LEFT JOIN tasks USING (task_id) WHERE task_id = $task_id and contestants.contest_id=tasks.contest_id ORDER BY t.code");
+    $res = mysql_query("
+        SELECT solution_id, judge_id, t.code, contestant_id
+        FROM solutions_tmp t
+        LEFT JOIN contestants USING (code)
+        LEFT JOIN tasks USING (task_id)
+        WHERE task_id = $task_id
+            AND (
+                contestants.contest_id=tasks.contest_id
+                OR contestants.contestant_id IS NULL
+            )
+        ORDER BY t.code
+    ");
     while ($r = mysql_fetch_assoc($res)) {
 
         if (in_array($r['code'], $aggr_codes)) continue;
