@@ -2,7 +2,7 @@
 {block name="content"}
 <form action="?action=login" method="post">
 <select name="judge_id">
-{foreach $judges as $judge}<option value="{$judge.id}">{$judge.name}</option>{/foreach}
+{foreach $judges as $judge}<option value="{$judge.id}">{$judge.name} [{$judge.id}]</option>{/foreach}
 </select>
 Password:
 <input type="password" name="passwd"/>
