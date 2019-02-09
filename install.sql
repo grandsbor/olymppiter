@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
     `task_id`    MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `contest_id` SMALLINT UNSIGNED NOT NULL,
     `task_name`  VARCHAR(255) NOT NULL,
-    `status`     TINYINT(1) NOT NULL
+    `status`     TINYINT(1) NOT NULL,
     INDEX(contest_id),
     INDEX(`status`)
 ) ENGINE = INNODB;
