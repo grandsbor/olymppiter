@@ -7,11 +7,7 @@ if ($argc != 2) {
     die("Usage: $argv[0] <judge id> (to generate new password) or $argv[0] \"<judge name>\" (to add new judge, mind the quotes!)\n");
 }
 
-$config = parse_ini_file(dirname(__FILE__) . '/config.ini', true);
-
-$pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
-$pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-$pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+require_once('db.php');
 
 
 function update_pwd($judge_id) {
